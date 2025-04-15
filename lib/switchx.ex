@@ -20,6 +20,9 @@ defmodule SwitchX do
   @spec linger(conn :: Pid) :: term
   def linger(conn), do: :gen_statem.call(conn, {:linger})
 
+  @spec linger(conn :: Pid, linger_time :: Integer) :: term
+  def linger(conn, linger_time), do: :gen_statem.call(conn, {:linger, linger_time})
+
   @doc """
   Reply the auth/request package from FreeSWITCH.
 
@@ -213,6 +216,11 @@ defmodule SwitchX do
   def close(conn) do
     __MODULE__.exit(conn)
     :gen_statem.call(conn, {:close})
+    :gen_statem.stop(conn, :normal, 1_000)
+  end
+
+  @spec stop(conn :: Pid) :: :ok | {:error, term}
+  def stop(conn) do
     :gen_statem.stop(conn, :normal, 1_000)
   end
 
