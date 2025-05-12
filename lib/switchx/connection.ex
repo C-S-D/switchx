@@ -125,6 +125,7 @@ defmodule SwitchX.Connection do
 
   @impl true
   def handle_event(:disconnect, event, state, data) do
+    Logger.info("handle_event :disconnect #{inspect(event)}")
     case event.headers["Content-Disposition"] do
       "linger" ->
         Logger.info("Disconnect hold due to linger, keeping state #{inspect(state)}")
@@ -338,15 +339,20 @@ defmodule SwitchX.Connection do
   end
 
   def ready(:event, event, data) do
+    # Logger.info("SwitchX ready: #{inspect(event)}")
     send(data.owner, {:switchx_event, event})
     {:keep_state, data}
   end
 
-  def disconnected(:event, %{headers: %{"Content-Type" => "text/disconnect-notice"}}, data) do
+  def disconnected(:event, %{headers: %{"Content-Type" => "text/disconnect-notice"}} = event, data) do
+
+    Logger.info("SwitchX disconnected with text/disconnect-notice: #{inspect(event)}")
+    send(data.owner, {:switchx_event, event})
     {:keep_state, data}
   end
 
-  def disconnected(:event, _payload, data) do
+  def disconnected(:event, payload, data) do
+    Logger.info("SwitchX disconnected: #{inspect(payload)}")
     {:keep_state, data}
   end
 
