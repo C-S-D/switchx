@@ -346,6 +346,11 @@ defmodule SwitchX.Connection do
     {:keep_state, data}
   end
 
+  def disconnected(:event, _payload, data) do
+    {:keep_state, data}
+  end
+
+
   @impl true
   def terminate(reason, _state, data) do
     :telemetry.execute([:switchx, :connection, data.connection_mode], %{value: -1}, %{})
